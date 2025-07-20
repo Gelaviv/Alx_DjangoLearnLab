@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>Admin Dashboard</h1>
+<p>Welcome, {{ request.user.username }} (Admin)</p>
+<ul>
+    <li><a href="#">Manage Users</a></li>
+    <li><a href="#">System Settings</a></li>
+    <li><a href="{% url 'librarian_view' %}">View Librarian Dashboard</a></li>
+</ul>
+{% endblock %}
