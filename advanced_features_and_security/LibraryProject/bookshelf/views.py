@@ -13,7 +13,7 @@ class BookForm(forms.ModelForm):
         fields = ['title', 'author']
 
 @login_required
-def list_books(request):
+def book_list(request):
     books = Book.objects.all()
     return render(request, 'bookshelf/list_books.html', {
         'books': books,
@@ -21,6 +21,9 @@ def list_books(request):
         'can_change': request.user.has_perm('bookshelf.can_change_book'),
         'can_delete': request.user.has_perm('bookshelf.can_delete_book')
     })
+
+def raise_exception(request):
+    raise Exception("This is a test exception.")
 
 @permission_required('bookshelf.can_add_book')
 def add_book(request):
