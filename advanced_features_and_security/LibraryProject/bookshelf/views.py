@@ -4,7 +4,7 @@ from django.contrib.auth.decorators import permission_required, login_required
 from .models import Book
 from django.core.exceptions import SuspiciousOperation
 from django.db.models import Q  # For more complex safe queries
-from .forms import BookForm
+from .forms import ExampleForm, BookForm
 
 
 # Create your views here.
@@ -50,6 +50,18 @@ def book_list(request):
         'can_edit': request.user.has_perm('bookshelf.can_edit_book'),
         'can_delete': request.user.has_perm('bookshelf.can_delete_book')
     })
+
+
+def example_view(request):
+    """Simple view demonstrating ExampleForm usage"""
+    if request.method == 'POST':
+        form = ExampleForm(request.POST)
+        if form.is_valid():
+            # Process the form data
+            return redirect('book_list')
+    else:
+        form = ExampleForm()
+    return render(request, 'bookshelf/example_form.html', {'form': form})
 
 
 @permission_required('bookshelf.can_add_book')
