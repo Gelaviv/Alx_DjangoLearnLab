@@ -23,7 +23,30 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-(b)9^#vtvx2qie5wgtfo#-8rh-iild#g$%3cq*17emy%$ublt*'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+# Security Configurations
+
+# Debug Mode (MUST be False in production)
+DEBUG = False
+
+# Browser Security Headers (XSS, Clickjacking, MIME-sniffing)
+
+SECURE_BROWSER_XSS_FILTER = True  # Blocks reflected XSS attacks
+X_FRAME_OPTIONS = 'DENY'  # Blocks iframes (clickjacking protection)
+SECURE_CONTENT_TYPE_NOSNIFF = True  # Stops browsers from guessing MIME types
+
+# HTTPS & Cookie security
+CSRF_COOKIE_SECURE = True  # CSRF cookies only over HTTPS
+SESSION_COOKIE_SECURE = True  # Session cookies only over HTTPS
+SECURE_SSL_REDIRECT = True  # Redirect HTTP → HTTPS (requires HTTPS in production!)
+
+# HTTP Strict Transport Security (HSTS)
+SECURE_HSTS_SECONDS = 31536000  # 1 year (enforces HTTPS)
+SECURE_HSTS_INCLUDE_SUBDOMAINS = True  # Applies to subdomains
+SECURE_HSTS_PRELOAD = True  # Allow preloading in browsers (e.g., Chrome's HSTS list)
+
+# Referrer Policy (controls Referer header)
+SECURE_REFERRER_POLICY = 'same-origin'
+
 
 ALLOWED_HOSTS = []
 
@@ -50,7 +73,20 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'csp.middleware.CSPMiddleware',
 ]
+
+
+# CSP settings
+CSP_DEFAULT_SRC = ("'self'",)
+CSP_SCRIPT_SRC = ("'self'",)
+CSP_STYLE_SRC = ("'self'", "'unsafe-inline'")  # 'unsafe-inline' only if needed
+CSP_IMG_SRC = ("'self'", "data:")
+CSP_FONT_SRC = ("'self'",)
+CSP_OBJECT_SRC = ("'none'",)
+CSP_BASE_URI = ("'none'",)
+CSP_FRAME_ANCESTORS = ("'none'",)
+
 
 ROOT_URLCONF = 'LibraryProject.urls'
 

@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    
+{% extends 'base.html' %}  <!-- If you have a base template -->
+
+{% block content %}
+<h1>Book List</h1>
+
+<!-- Search Form (with CSRF token for POST requests) -->
+<form method="get" action="{% url 'book_list' %}">
+    <input type="text" name="q" placeholder="Search books..." value="{{ request.GET.q }}">
+    <button type="submit">Search</button>
+</form>
+
+<!-- Display books in a secure way (auto-escaped by Django) -->
+<ul>
+    {% for book in books %}
+    <li>
+        <a href="{% url 'book_detail' book.id %}">{{ book.title }}</a> by {{ book.author }}
+        {% if request.user.is_authenticated and perms.bookshelf.change_book %}
+        | <a href="{% url 'edit_book' book.id %}">Edit</a>
+        {% endif %}
+        {% if request.user.is_authenticated and perms.bookshelf.delete_book %}
+        | <a href="{% url 'delete_book' book.id %}">Delete</a>
+        {% endif %}
+    </li>
+    {% empty %}
+    <li>No books found.</li>
+    {% endfor %}
+</ul>
+
+<!-- Add book link (protected by permission) -->
+{% if request.user.is_authenticated and perms.bookshelf.add_book %}
+<a href="{% url 'add_book' %}">Add New Book</a>
+{% endif %}
+
+{% endblock %}
+
+
+</body>
+</html>
