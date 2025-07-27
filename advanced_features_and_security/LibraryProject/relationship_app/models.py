@@ -16,11 +16,8 @@ class Book(models.Model):
 
     class Meta:
         permissions = [
-            ("can_view_book", "Can view book"),
-            ("can_create_book", "Can create book"),
-            ("can_edit_book", "Can edit book"),
-            # ("can_add_book", "Can add book"),
-            # ("can_change_book", "Can change book"),
+            ("can_add_book", "Can add book"),
+            ("can_change_book", "Can change book"),
             ("can_delete_book", "Can delete book"),
         ]
 
@@ -54,6 +51,7 @@ class UserProfile(models.Model):
 
     def __str__(self):
         return f"{self.user.username} ({self.get_role_display()})"
+
 
 @receiver(post_save, sender=settings.AUTH_USER_MODEL)
 def create_user_profile(sender, instance, created, **kwargs):
