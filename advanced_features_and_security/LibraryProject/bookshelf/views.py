@@ -4,12 +4,10 @@ from django.contrib.auth.decorators import permission_required, login_required
 from .models import Book
 from django.core.exceptions import SuspiciousOperation
 from django.db.models import Q  # For more complex safe queries
-from django import forms
-import html  # Move to top for better organization
+from .forms import BookForm
 
 
 # Create your views here.
-
 
 """
 Security Measures Implemented:
@@ -26,23 +24,6 @@ Security Measures Implemented:
 5. Secure Cookies:
    - CSRF and session cookies only sent over HTTPS
 """
-
-class BookForm(forms.ModelForm):
-    class Meta:
-        model = Book
-        fields = ['title', 'author']
-
-    
-    def clean_title(self):
-        title = self.cleaned_data.get('title')
-        # Basic XSS protection by escaping HTML
-        return html.escape(title)
-    
-    def clean_author(self):
-        author = self.cleaned_data.get('author')
-        # Basic XSS protection by escaping HTML
-        return html.escape(author)
-
 
 
 
