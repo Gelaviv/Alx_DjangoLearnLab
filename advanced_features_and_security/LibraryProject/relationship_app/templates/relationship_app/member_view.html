@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>Member Dashboard</h1>
+<p>Welcome, {{ request.user.username }} (Member)</p>
+<ul>
+    <li><a href="{% url 'list_books' %}">Browse Books</a></li>
+    <li><a href="{% url 'library_detail' 1 %}">View Library</a></li>
+    <li><a href="#">My Borrowed Books</a></li>
+</ul>
+{% endblock %}
