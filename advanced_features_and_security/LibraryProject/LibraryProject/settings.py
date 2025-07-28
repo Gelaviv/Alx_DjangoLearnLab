@@ -33,19 +33,25 @@ DEBUG = False
 SECURE_BROWSER_XSS_FILTER = True  # Blocks reflected XSS attacks
 X_FRAME_OPTIONS = 'DENY'  # Blocks iframes (clickjacking protection)
 SECURE_CONTENT_TYPE_NOSNIFF = True  # Stops browsers from guessing MIME types
+SECURE_REFERRER_POLICY = 'same-origin'  # Control Referer header
 
-# HTTPS & Cookie security
+
+# Cookie security
 CSRF_COOKIE_SECURE = True  # CSRF cookies only over HTTPS
 SESSION_COOKIE_SECURE = True  # Session cookies only over HTTPS
-SECURE_SSL_REDIRECT = True  # Redirect HTTP → HTTPS (requires HTTPS in production!)
+SESSION_COOKIE_HTTPONLY = True  # Prevent JavaScript access to session cookie
+CSRF_COOKIE_HTTPONLY = False  # False allows JavaScript to read for AJAX requests
 
 # HTTP Strict Transport Security (HSTS)
 SECURE_HSTS_SECONDS = 31536000  # 1 year (enforces HTTPS)
 SECURE_HSTS_INCLUDE_SUBDOMAINS = True  # Applies to subdomains
 SECURE_HSTS_PRELOAD = True  # Allow preloading in browsers (e.g., Chrome's HSTS list)
 
-# Referrer Policy (controls Referer header)
-SECURE_REFERRER_POLICY = 'same-origin'
+
+# HTTPS/SSL Configuration
+SECURE_SSL_REDIRECT = True  # Redirect all HTTP requests to HTTPS
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')  # For proxy setups
+
 
 
 ALLOWED_HOSTS = []
