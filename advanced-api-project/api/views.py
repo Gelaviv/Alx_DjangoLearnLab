@@ -3,14 +3,14 @@ from .models import Author, Book
 from rest_framework import filters
 from .serializers import AuthorSerializer, BookSerializer
 from rest_framework import permissions
-from rest_framework.mixins import ListModelMixin, RetrieveModelMixin, CreateModelMixin, UpdateModelMixin, DestroyModelMixin
-from rest_framework.generics import GenericAPIView
+from rest_framework.generics import ListCreateAPIView,RetrieveUpdateDestroyAPIView,CreateAPIView,UpdateAPIView,DestroyAPIView
+
 from django_filters.rest_framework import DjangoFilterBackend
 from .permissions import IsAdminOrReadOnly, IsOwnerOrReadOnly
 
 # Create your views here.
 
-class BookListView(ListModelMixin, CreateModelMixin, GenericAPIView):
+class BookListView(ListCreateAPIView):
     """
     View for listing all books and creating new books.
     - GET: Returns list of all books (available to everyone)
@@ -29,75 +29,69 @@ class BookListView(ListModelMixin, CreateModelMixin, GenericAPIView):
     ordering = ['title']  # Default ordering
 
 
-
-    def get(self, request, *args, **kwargs):
-        """Handle GET requests - list all books"""
-        return self.list(request, *args, **kwargs)
-
-    def post(self, request, *args, **kwargs):
-        """Handle POST requests - create a new book"""
-        return self.create(request, *args, **kwargs)
-
     def perform_create(self, serializer):
-        """Custom create method to add additional logic if needed"""
         serializer.save()
 
-
-
-
-class BookDetailView(RetrieveModelMixin, UpdateModelMixin, DestroyModelMixin, GenericAPIView):
+class BookCreateView(CreateAPIView):
     """
-    View for retrieving, updating, or deleting a specific book.
-    - GET: Retrieve book details (available to everyone)
-    - PUT/PATCH: Update book (requires authentication)
-    - DELETE: Remove book (requires authentication)
+    Dedicated view for creating books (if separate from list is needed)
+    """
+    queryset = Book.objects.all()
+    serializer_class = BookSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+
+class BookUpdateView(UpdateAPIView):
+    """
+    Dedicated view for updating books
+    """
+    queryset = Book.objects.all()
+    serializer_class = BookSerializer
+    permission_classes = [permissions.IsAuthenticated, IsOwnerOrReadOnly]
+
+class BookDeleteView(DestroyAPIView):
+    """
+    Dedicated view for deleting books
+    """
+    queryset = Book.objects.all()
+    serializer_class = BookSerializer
+    permission_classes = [permissions.IsAuthenticated, IsOwnerOrReadOnly]
+
+class BookDetailView(RetrieveUpdateDestroyAPIView):
+    """
+    View for retrieving, updating or deleting a book.
+    Combines DetailView, UpdateView and DeleteView.
     """
     queryset = Book.objects.all()
     serializer_class = BookSerializer
     permission_classes = [permissions.IsAuthenticatedOrReadOnly, IsOwnerOrReadOnly]
 
-    def get(self, request, *args, **kwargs):
-        """Handle GET requests - retrieve single book"""
-        return self.retrieve(request, *args, **kwargs)
-
-    def put(self, request, *args, **kwargs):
-        """Handle PUT requests - full update of book"""
-        return self.update(request, *args, **kwargs)
-
-    def patch(self, request, *args, **kwargs):
-        """Handle PATCH requests - partial update of book"""
-        return self.partial_update(request, *args, **kwargs)
-
-    def delete(self, request, *args, **kwargs):
-        """Handle DELETE requests - remove book"""
-        return self.destroy(request, *args, **kwargs)
-
-class AuthorListView(ListModelMixin, CreateModelMixin, GenericAPIView):
-    """Similar implementation for Author model"""
+class AuthorListView(ListCreateAPIView):
+    """View for listing and creating authors"""
     queryset = Author.objects.all()
     serializer_class = AuthorSerializer
     permission_classes = [permissions.IsAuthenticatedOrReadOnly]
 
-    def get(self, request, *args, **kwargs):
-        return self.list(request, *args, **kwargs)
+class AuthorCreateView(CreateAPIView):
+    """Dedicated view for creating authors"""
+    queryset = Author.objects.all()
+    serializer_class = AuthorSerializer
+    permission_classes = [permissions.IsAuthenticated]
 
-    def post(self, request, *args, **kwargs):
-        return self.create(request, *args, **kwargs)
+class AuthorUpdateView(UpdateAPIView):
+    """Dedicated view for updating authors"""
+    queryset = Author.objects.all()
+    serializer_class = AuthorSerializer
+    permission_classes = [permissions.IsAuthenticated, IsAdminOrReadOnly]
 
-class AuthorDetailView(RetrieveModelMixin, UpdateModelMixin, DestroyModelMixin, GenericAPIView):
-    """Similar implementation for Author details"""
+class AuthorDeleteView(DestroyAPIView):
+    """Dedicated view for deleting authors"""
+    queryset = Author.objects.all()
+    serializer_class = AuthorSerializer
+    permission_classes = [permissions.IsAuthenticated, IsAdminOrReadOnly]
+
+class AuthorDetailView(RetrieveUpdateDestroyAPIView):
+    """View for retrieving, updating or deleting an author"""
     queryset = Author.objects.all()
     serializer_class = AuthorSerializer
     permission_classes = [permissions.IsAuthenticatedOrReadOnly, IsAdminOrReadOnly]
-
-    def get(self, request, *args, **kwargs):
-        return self.retrieve(request, *args, **kwargs)
-
-    def put(self, request, *args, **kwargs):
-        return self.update(request, *args, **kwargs)
-
-    def patch(self, request, *args, **kwargs):
-        return self.partial_update(request, *args, **kwargs)
-
-    def delete(self, request, *args, **kwargs):
-        return self.destroy(request, *args, **kwargs)
