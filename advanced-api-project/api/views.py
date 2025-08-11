@@ -22,21 +22,36 @@ class BookListView(ListCreateAPIView):
     
 
       # Filtering and searching
-    filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
-    filterset_fields = ['title', 'publication_year', 'author__name']
-    search_fields = ['title', 'author__name', 'description']
-    ordering_fields = ['title', 'publication_year', 'created_at']
-    ordering = ['title']  # Default ordering
+    filter_backends = [DjangoFilterBackend]
+    filterset_fields = {
+        'title': ['exact'],
+        'author__name': ['exact'],
+        'publication_year': ['exact', 'gte', 'lte']
+    }
 
     def get_queryset(self):
         """
-        Optionally filters the queryset by minimum publication year
-        Example: ?min_year=2000
+        Applies filtering to the queryset based on request parameters.
+        Supported filters:
+        - title (exact match)
+        - author__name (exact match)
+        - publication_year (exact, gte, lte)
         """
         queryset = super().get_queryset()
-        min_year = self.request.query_params.get('min_year')
-        if min_year:
-            queryset = queryset.filter(publication_year__gte=min_year)
+        
+        # Apply standard filtering
+        title = self.request.query_params.get('title')
+        if title:
+            queryset = queryset.filter(title__iexact=title)
+            
+        author_name = self.request.query_params.get('author__name')
+        if author_name:
+            queryset = queryset.filter(author__name__iexact=author_name)
+            
+        publication_year = self.request.query_params.get('publication_year')
+        if publication_year:
+            queryset = queryset.filter(publication_year=publication_year)
+            
         return queryset
 
 class BookCreateView(CreateAPIView):
