@@ -23,14 +23,21 @@ class BookListView(ListCreateAPIView):
 
       # Filtering and searching
     filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
-    filterset_fields = ['publication_year', 'author']
-    search_fields = ['title', 'author__name']
-    ordering_fields = ['title', 'publication_year']
+    filterset_fields = ['title', 'publication_year', 'author__name']
+    search_fields = ['title', 'author__name', 'description']
+    ordering_fields = ['title', 'publication_year', 'created_at']
     ordering = ['title']  # Default ordering
 
-
-    def perform_create(self, serializer):
-        serializer.save()
+    def get_queryset(self):
+        """
+        Optionally filters the queryset by minimum publication year
+        Example: ?min_year=2000
+        """
+        queryset = super().get_queryset()
+        min_year = self.request.query_params.get('min_year')
+        if min_year:
+            queryset = queryset.filter(publication_year__gte=min_year)
+        return queryset
 
 class BookCreateView(CreateAPIView):
     """
@@ -39,6 +46,11 @@ class BookCreateView(CreateAPIView):
     queryset = Book.objects.all()
     serializer_class = BookSerializer
     permission_classes = [IsAuthenticated]
+
+
+    def perform_create(self, serializer):
+        serializer.save()
+
 
 
 class BookUpdateView(UpdateAPIView):
