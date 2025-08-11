@@ -2,7 +2,7 @@ from django.shortcuts import render
 from .models import Author, Book
 from rest_framework import filters
 from .serializers import AuthorSerializer, BookSerializer
-from rest_framework import permissions
+from rest_framework.permissions import IsAuthenticatedOrReadOnly, IsAuthenticated
 from rest_framework.generics import ListCreateAPIView,RetrieveUpdateDestroyAPIView,CreateAPIView,UpdateAPIView,DestroyAPIView
 
 from django_filters.rest_framework import DjangoFilterBackend
@@ -18,7 +18,7 @@ class BookListView(ListCreateAPIView):
     """
     queryset = Book.objects.all()
     serializer_class = BookSerializer
-    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+    permission_classes = [IsAuthenticatedOrReadOnly]
     
 
       # Filtering and searching
@@ -38,7 +38,7 @@ class BookCreateView(CreateAPIView):
     """
     queryset = Book.objects.all()
     serializer_class = BookSerializer
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [IsAuthenticated]
 
 
 class BookUpdateView(UpdateAPIView):
@@ -47,7 +47,7 @@ class BookUpdateView(UpdateAPIView):
     """
     queryset = Book.objects.all()
     serializer_class = BookSerializer
-    permission_classes = [permissions.IsAuthenticated, IsOwnerOrReadOnly]
+    permission_classes = [IsAuthenticated, IsOwnerOrReadOnly]
 
     def get_object(self):
         # Get pk from request data instead of URL
@@ -60,7 +60,7 @@ class BookDeleteView(DestroyAPIView):
     """
     queryset = Book.objects.all()
     serializer_class = BookSerializer
-    permission_classes = [permissions.IsAuthenticated, IsOwnerOrReadOnly]
+    permission_classes = [IsAuthenticated, IsOwnerOrReadOnly]
 
 
     def get_object(self):
@@ -75,34 +75,34 @@ class BookDetailView(RetrieveUpdateDestroyAPIView):
     """
     queryset = Book.objects.all()
     serializer_class = BookSerializer
-    permission_classes = [permissions.IsAuthenticatedOrReadOnly, IsOwnerOrReadOnly]
+    permission_classes = [IsAuthenticatedOrReadOnly, IsOwnerOrReadOnly]
 
 class AuthorListView(ListCreateAPIView):
     """View for listing and creating authors"""
     queryset = Author.objects.all()
     serializer_class = AuthorSerializer
-    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+    permission_classes = [IsAuthenticatedOrReadOnly]
 
 class AuthorCreateView(CreateAPIView):
     """Dedicated view for creating authors"""
     queryset = Author.objects.all()
     serializer_class = AuthorSerializer
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [IsAuthenticated]
 
 class AuthorUpdateView(UpdateAPIView):
     """Dedicated view for updating authors"""
     queryset = Author.objects.all()
     serializer_class = AuthorSerializer
-    permission_classes = [permissions.IsAuthenticated, IsAdminOrReadOnly]
+    permission_classes = [IsAuthenticated, IsAdminOrReadOnly]
 
 class AuthorDeleteView(DestroyAPIView):
     """Dedicated view for deleting authors"""
     queryset = Author.objects.all()
     serializer_class = AuthorSerializer
-    permission_classes = [permissions.IsAuthenticated, IsAdminOrReadOnly]
+    permission_classes = [IsAuthenticated, IsAdminOrReadOnly]
 
 class AuthorDetailView(RetrieveUpdateDestroyAPIView):
     """View for retrieving, updating or deleting an author"""
     queryset = Author.objects.all()
     serializer_class = AuthorSerializer
-    permission_classes = [permissions.IsAuthenticatedOrReadOnly, IsAdminOrReadOnly]
+    permission_classes = [IsAuthenticatedOrReadOnly, IsAdminOrReadOnly]
