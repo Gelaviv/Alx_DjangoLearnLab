@@ -49,6 +49,11 @@ class BookUpdateView(UpdateAPIView):
     serializer_class = BookSerializer
     permission_classes = [permissions.IsAuthenticated, IsOwnerOrReadOnly]
 
+    def get_object(self):
+        # Get pk from request data instead of URL
+        pk = self.request.data.get('id')
+        return Book.objects.get(pk=pk)
+
 class BookDeleteView(DestroyAPIView):
     """
     Dedicated view for deleting books
@@ -56,6 +61,12 @@ class BookDeleteView(DestroyAPIView):
     queryset = Book.objects.all()
     serializer_class = BookSerializer
     permission_classes = [permissions.IsAuthenticated, IsOwnerOrReadOnly]
+
+
+    def get_object(self):
+        # Get pk from request data instead of URL
+        pk = self.request.data.get('id')
+        return Book.objects.get(pk=pk)
 
 class BookDetailView(RetrieveUpdateDestroyAPIView):
     """
