@@ -43,6 +43,21 @@ class BookAPITestCase(APITestCase):
         # Initialize client
         self.client = APIClient()
 
+    def test_login_authentication(self):
+        """Test that demonstrates using self.client.login()"""
+        # Test login with regular user
+        login_success = self.client.login(username='user', password='userpass')
+        self.assertTrue(login_success)
+        
+        # Test making an authenticated request
+        url = reverse('book-list')
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        
+        # Logout
+        self.client.logout()
+
+
 
     # Book Creation Tests
 
