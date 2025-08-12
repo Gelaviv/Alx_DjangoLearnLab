@@ -13,7 +13,7 @@ class IsAdminOrReadOnly(permissions.BasePermission):
         # Write permissions are only allowed to admin users
         return request.user and request.user.is_staff
 
-class IsOwnerOrReadOnly(permissions.BasePermission):
+'''class IsOwnerOrReadOnly(permissions.BasePermission):
     """
     Custom permission to only allow owners of an object to edit it.
     (This would require adding an 'owner' field to models)
@@ -24,4 +24,4 @@ class IsOwnerOrReadOnly(permissions.BasePermission):
             return True
 
         # Write permissions are only allowed to the owner
-        return obj.owner == request.user
+        return obj.owner == request.user'''

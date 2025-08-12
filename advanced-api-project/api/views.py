@@ -5,7 +5,7 @@ from .serializers import AuthorSerializer, BookSerializer
 from rest_framework.permissions import IsAuthenticatedOrReadOnly, IsAuthenticated
 from rest_framework import generics
 from rest_framework import filters as drf_filters
-from .permissions import IsAdminOrReadOnly, IsOwnerOrReadOnly
+from .permissions import IsAdminOrReadOnly
 
 # Create your views here.
 
@@ -27,13 +27,7 @@ class BookListView(generics.ListCreateAPIView):
     ordering_fields = ['title', 'publication_year']
     ordering = ['title']  # Default ordering
 
-    def get_queryset(self):
-        queryset = super().get_queryset()
         
-        if min_year:
-            queryset = queryset.filter(publication_year__gte=min_year)
-        return queryset
-
 class BookCreateView(generics.CreateAPIView):
     """
     Dedicated view for creating books (if separate from list is needed)
@@ -54,7 +48,7 @@ class BookUpdateView(generics.UpdateAPIView):
     """
     queryset = Book.objects.all()
     serializer_class = BookSerializer
-    permission_classes = [IsAuthenticated, IsOwnerOrReadOnly]
+    permission_classes = [IsAuthenticated]
 
     def get_object(self):
         # Get pk from request data instead of URL
@@ -67,7 +61,7 @@ class BookDeleteView(generics.DestroyAPIView):
     """
     queryset = Book.objects.all()
     serializer_class = BookSerializer
-    permission_classes = [IsAuthenticated, IsOwnerOrReadOnly]
+    permission_classes = [IsAuthenticated]
 
 
     def get_object(self):
@@ -82,7 +76,7 @@ class BookDetailView(generics.RetrieveUpdateDestroyAPIView):
     """
     queryset = Book.objects.all()
     serializer_class = BookSerializer
-    permission_classes = [IsAuthenticatedOrReadOnly, IsOwnerOrReadOnly]
+    permission_classes = [IsAdminOrReadOnly]
 
 class AuthorListView(generics.ListCreateAPIView):
     """View for listing and creating authors"""
