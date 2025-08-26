@@ -2,8 +2,8 @@
 from rest_framework import viewsets, permissions, status, generics
 from rest_framework.decorators import action
 from rest_framework.response import Response
+from django.shortcuts import get_object_or_404
 from .models import Post, Comment, Like
-from django.db.models import Q
 from .serializers import (
     PostSerializer, PostCreateSerializer, 
     CommentSerializer, CommentCreateSerializer, LikeSerializer
@@ -11,8 +11,6 @@ from .serializers import (
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.filters import SearchFilter
 from notifications.models import Notification
-
-
 
 class IsAuthorOrReadOnly(permissions.BasePermission):
     def has_object_permission(self, request, view, obj):
@@ -71,7 +69,7 @@ class PostViewSet(viewsets.ModelViewSet):
             post.likes_count += 1
             post.save()
             
-            # Create notification (if not liking own post)
+            
             if post.author != request.user:
                 Notification.objects.create(
                     recipient=post.author,
@@ -92,7 +90,7 @@ class PostViewSet(viewsets.ModelViewSet):
     
     @action(detail=True, methods=['post'], permission_classes=[permissions.IsAuthenticated])
     def unlike(self, request, pk=None):
-        # Use generics.get_object_or_404 instead of get_object_or_404
+        
         post = generics.get_object_or_404(Post, pk=pk)
         
         try:
@@ -126,26 +124,13 @@ class CommentViewSet(viewsets.ModelViewSet):
     def perform_create(self, serializer):
         serializer.save(author=self.request.user)
 
-
-
 class FeedView(generics.ListAPIView):
     serializer_class = PostSerializer
     permission_classes = [permissions.IsAuthenticated]
     
     def get_queryset(self):
-        # Get posts from users that the current user follows
+        
         following_users = self.request.user.following.all()
-        return Post.objects.filter(
-            Q(author__in=following_users) | Q(author=self.request.user)
-        ).order_by('-created_at')
-    
-    def list(self, request, *args, **kwargs):
-        queryset = self.get_queryset()
-        page = self.paginate_queryset(queryset)
         
-        if page is not None:
-            serializer = self.get_serializer(page, many=True)
-            return self.get_paginated_response(serializer.data)
-        
-        serializer = self.get_serializer(queryset, many=True)
-        return Response(serializer.data)
+
+        return Post.objects.filter(author__in=following_users).order_by('-created_at')
