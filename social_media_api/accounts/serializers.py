@@ -5,6 +5,9 @@ from rest_framework.authtoken.models import Token
 from django.contrib.auth import get_user_model
 from .models import CustomUser
 
+
+User = get_user_model()
+
 class UserRegistrationSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True)
     password2 = serializers.CharField(write_only=True)
@@ -62,3 +65,22 @@ class UserProfileSerializer(serializers.ModelSerializer):
         fields = ('id', 'username', 'email', 'first_name', 'last_name', 
                  'bio', 'profile_picture', 'follower_count', 'following_count')
         read_only_fields = ('id', 'username', 'email')
+
+
+
+
+class UserFollowSerializer(serializers.ModelSerializer):
+    is_following = serializers.SerializerMethodField()
+    
+    class Meta:
+        model = User
+        fields = ('id', 'username', 'first_name', 'last_name', 'is_following')
+    
+    def get_is_following(self, obj):
+        request = self.context.get('request')
+        if request and request.user.is_authenticated:
+            return request.user.is_following(obj)
+        return False
+
+class FollowActionSerializer(serializers.Serializer):
+    user_id = serializers.IntegerField()
