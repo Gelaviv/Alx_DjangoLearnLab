@@ -2,6 +2,7 @@
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
 from . import views
+from .views import LikePostView, UnlikePostView
 
 
 router = DefaultRouter()
@@ -10,5 +11,8 @@ router.register(r'comments', views.CommentViewSet)
 
 urlpatterns = [
     path('', include(router.urls)),
+
+    path('posts/<int:pk>/like/', views.PostViewSet.as_view({'post': 'like'}), name='post-like'),
+    path('posts/<int:pk>/unlike/', views.PostViewSet.as_view({'post': 'unlike'}), name='post-unlike'),
     
 ]
