@@ -2,6 +2,7 @@
 from rest_framework import viewsets, permissions, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
+from django.shortcuts import get_object_or_404 
 from .models import Post, Comment, Like
 from .serializers import (
     PostSerializer, PostCreateSerializer, 
@@ -58,41 +59,45 @@ class PostViewSet(viewsets.ModelViewSet):
         
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
-
-
     @action(detail=True, methods=['post'], permission_classes=[permissions.IsAuthenticated])
     def like(self, request, pk=None):
-        post = self.get_object()
+        # Use get_object_or_404 instead of self.get_object()
+        post = get_object_or_404(Post, pk=pk)
         
-        # Check if user already liked the post
-        if Like.objects.filter(user=request.user, post=post).exists():
+        # Use get_or_create instead of manual checking
+        like, created = Like.objects.get_or_create(
+            user=request.user,
+            post=post
+        )
+        
+        if created:
+            # Update likes count
+            post.likes_count += 1
+            post.save()
+            
+            # Create notification (if not liking own post)
+            if post.author != request.user:
+                Notification.objects.create(
+                    recipient=post.author,
+                    actor=request.user,
+                    verb='like',
+                    target=post
+                )
+            
+            return Response(
+                LikeSerializer(like, context={'request': request}).data,
+                status=status.HTTP_201_CREATED
+            )
+        else:
             return Response(
                 {'error': 'You have already liked this post.'},
                 status=status.HTTP_400_BAD_REQUEST
             )
-        
-        # Create like
-        like = Like.objects.create(user=request.user, post=post)
-        post.likes_count += 1
-        post.save()
-        
-        # Create notification (if not liking own post)
-        if post.author != request.user:
-            Notification.objects.create(
-                recipient=post.author,
-                actor=request.user,
-                verb='like',
-                target=post
-            )
-        
-        return Response(
-            LikeSerializer(like, context={'request': request}).data,
-            status=status.HTTP_201_CREATED
-        )
     
     @action(detail=True, methods=['post'], permission_classes=[permissions.IsAuthenticated])
     def unlike(self, request, pk=None):
-        post = self.get_object()
+        # Use get_object_or_404 instead of self.get_object()
+        post = get_object_or_404(Post, pk=pk)
         
         try:
             like = Like.objects.get(user=request.user, post=post)
@@ -116,7 +121,6 @@ class PostViewSet(viewsets.ModelViewSet):
         likes = post.post_likes.all()
         serializer = LikeSerializer(likes, many=True, context={'request': request})
         return Response(serializer.data)
-    
 
 class CommentViewSet(viewsets.ModelViewSet):
     queryset = Comment.objects.all()
