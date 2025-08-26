@@ -1,8 +1,8 @@
 # posts/views.py
-from rest_framework import viewsets, permissions, status
+from rest_framework import viewsets, permissions, status, generics
 from rest_framework.decorators import action
 from rest_framework.response import Response
-from django.shortcuts import get_object_or_404 
+# from django.shortcuts import get_object_or_404 
 from .models import Post, Comment, Like
 from .serializers import (
     PostSerializer, PostCreateSerializer, 
@@ -11,9 +11,6 @@ from .serializers import (
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.filters import SearchFilter
 from notifications.models import Notification
-
-
-
 
 class IsAuthorOrReadOnly(permissions.BasePermission):
     def has_object_permission(self, request, view, obj):
@@ -61,8 +58,8 @@ class PostViewSet(viewsets.ModelViewSet):
     
     @action(detail=True, methods=['post'], permission_classes=[permissions.IsAuthenticated])
     def like(self, request, pk=None):
-        # Use get_object_or_404 instead of self.get_object()
-        post = get_object_or_404(Post, pk=pk)
+        # Use generics.get_object_or_404 instead of get_object_or_404
+        post = generics.get_object_or_404(Post, pk=pk)
         
         # Use get_or_create instead of manual checking
         like, created = Like.objects.get_or_create(
@@ -96,8 +93,8 @@ class PostViewSet(viewsets.ModelViewSet):
     
     @action(detail=True, methods=['post'], permission_classes=[permissions.IsAuthenticated])
     def unlike(self, request, pk=None):
-        # Use get_object_or_404 instead of self.get_object()
-        post = get_object_or_404(Post, pk=pk)
+        # Use generics.get_object_or_404 instead of get_object_or_404
+        post = generics.get_object_or_404(Post, pk=pk)
         
         try:
             like = Like.objects.get(user=request.user, post=post)
