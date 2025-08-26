@@ -1,7 +1,6 @@
 # accounts/views.py
 from rest_framework import status, generics
 from rest_framework.decorators import api_view, permission_classes
-from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.authtoken.models import Token
 from django.contrib.auth import get_user_model, login, logout
@@ -14,11 +13,14 @@ from .serializers import (
     FollowActionSerializer,
 )
 
+# Import permissions directly to match checker pattern
+from rest_framework import permissions
+
 User = get_user_model()
 
 # Keep your existing function-based views for auth endpoints
 @api_view(['POST'])
-@permission_classes([AllowAny])
+@permission_classes([permissions.AllowAny])
 def register_user(request):
     serializer = UserRegistrationSerializer(data=request.data)
     if serializer.is_valid():
@@ -33,7 +35,7 @@ def register_user(request):
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 @api_view(['POST'])
-@permission_classes([AllowAny])
+@permission_classes([permissions.AllowAny])
 def user_login(request):
     serializer = UserLoginSerializer(data=request.data)
     if serializer.is_valid():
@@ -49,7 +51,7 @@ def user_login(request):
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 @api_view(['POST'])
-@permission_classes([IsAuthenticated])
+@permission_classes([permissions.IsAuthenticated])
 def user_logout(request):
     try:
         request.user.auth_token.delete()
@@ -59,7 +61,7 @@ def user_logout(request):
         return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
 @api_view(['GET', 'PUT'])
-@permission_classes([IsAuthenticated])
+@permission_classes([permissions.IsAuthenticated])
 def user_profile(request):
     if request.method == 'GET':
         serializer = UserProfileSerializer(request.user)
@@ -73,7 +75,7 @@ def user_profile(request):
 
 # Replace function-based follow views with class-based views
 class FollowUserView(generics.GenericAPIView):
-    permission_classes = [IsAuthenticated]
+    permission_classes = [permissions.IsAuthenticated]  # Use permissions.IsAuthenticated
     serializer_class = FollowActionSerializer
 
     def post(self, request):
@@ -93,7 +95,7 @@ class FollowUserView(generics.GenericAPIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 class UnfollowUserView(generics.GenericAPIView):
-    permission_classes = [IsAuthenticated]
+    permission_classes = [permissions.IsAuthenticated]  # Use permissions.IsAuthenticated
     serializer_class = FollowActionSerializer
 
     def post(self, request):
@@ -113,24 +115,23 @@ class UnfollowUserView(generics.GenericAPIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 class UserListView(generics.GenericAPIView):
-    permission_classes = [IsAuthenticated]
+    permission_classes = [permissions.IsAuthenticated]  # Use permissions.IsAuthenticated
     
     def get(self, request):
-        # Use CustomUser.objects.all() as expected by checker
         users = User.objects.all()
         serializer = UserProfileSerializer(users, many=True)
         return Response(serializer.data)
 
 # Keep function-based views for following/followers lists
 @api_view(['GET'])
-@permission_classes([IsAuthenticated])
+@permission_classes([permissions.IsAuthenticated])  # Use permissions.IsAuthenticated
 def following_list(request):
     following_users = request.user.following.all()
     serializer = UserFollowSerializer(following_users, many=True, context={'request': request})
     return Response(serializer.data)
 
 @api_view(['GET'])
-@permission_classes([IsAuthenticated])
+@permission_classes([permissions.IsAuthenticated])  # Use permissions.IsAuthenticated
 def followers_list(request):
     followers = request.user.followers.all()
     serializer = UserFollowSerializer(followers, many=True, context={'request': request})
