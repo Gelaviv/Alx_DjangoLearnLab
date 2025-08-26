@@ -74,48 +74,38 @@ def user_profile(request):
             return Response(serializer.data)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-# Replace function-based follow views with class-based views
+
 class FollowUserView(generics.GenericAPIView):
     permission_classes = [permissions.IsAuthenticated]
-    serializer_class = FollowActionSerializer
 
-    def post(self, request):
-        serializer = self.get_serializer(data=request.data)
-        if serializer.is_valid():
-            # Use CustomUser directly
-            user_to_follow = get_object_or_404(CustomUser, id=serializer.validated_data['user_id'])
-            
-            if request.user.follow(user_to_follow):
-                return Response({
-                    'message': f'You are now following {user_to_follow.username}'
-                }, status=status.HTTP_200_OK)
-            else:
-                return Response({
-                    'error': 'Unable to follow user. You may already be following them or trying to follow yourself.'
-                }, status=status.HTTP_400_BAD_REQUEST)
+    def post(self, request, user_id):  
+        user_to_follow = get_object_or_404(CustomUser, id=user_id)
         
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        if request.user.follow(user_to_follow):
+            return Response({
+                'message': f'You are now following {user_to_follow.username}'
+            }, status=status.HTTP_200_OK)
+        else:
+            return Response({
+                'error': 'Unable to follow user. You may already be following them or trying to follow yourself.'
+            }, status=status.HTTP_400_BAD_REQUEST)
 
 class UnfollowUserView(generics.GenericAPIView):
     permission_classes = [permissions.IsAuthenticated]
-    serializer_class = FollowActionSerializer
 
-    def post(self, request):
-        serializer = self.get_serializer(data=request.data)
-        if serializer.is_valid():
-            # Use CustomUser directly
-            user_to_unfollow = get_object_or_404(CustomUser, id=serializer.validated_data['user_id'])
-            
-            if request.user.unfollow(user_to_unfollow):
-                return Response({
-                    'message': f'You have unfollowed {user_to_unfollow.username}'
-                }, status=status.HTTP_200_OK)
-            else:
-                return Response({
-                    'error': 'You are not following this user.'
-                }, status=status.HTTP_400_BAD_REQUEST)
+    def post(self, request, user_id):  # Add user_id parameter
+        # Use CustomUser directly
+        user_to_unfollow = get_object_or_404(CustomUser, id=user_id)
         
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        if request.user.unfollow(user_to_unfollow):
+            return Response({
+                'message': f'You have unfollowed {user_to_unfollow.username}'
+            }, status=status.HTTP_200_OK)
+        else:
+            return Response({
+                'error': 'You are not following this user.'
+            }, status=status.HTTP_400_BAD_REQUEST)
+
 
 class UserListView(generics.GenericAPIView):
     permission_classes = [permissions.IsAuthenticated]

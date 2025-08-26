@@ -11,8 +11,8 @@ urlpatterns = [
     path('logout/', views.user_logout, name='logout'),
     path('profile/', views.user_profile, name='profile'),
     path('users/', UserListView.as_view(), name='user-list'),
-    path('follow/', FollowUserView.as_view(), name='follow-user'),
-    path('unfollow/', UnfollowUserView.as_view(), name='unfollow-user'),
+    path('follow/<int:user_id>/', FollowUserView.as_view(), name='follow-user'),
+    path('unfollow/<int:user_id>/', UnfollowUserView.as_view(), name='unfollow-user'),
     path('following/', views.following_list, name='following-list'),
     path('followers/', views.followers_list, name='followers-list'),
 
