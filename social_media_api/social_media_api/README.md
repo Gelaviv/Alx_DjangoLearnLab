@@ -354,3 +354,100 @@ json
         "field_name": ["Error description"]
     }
 }
+
+
+# Notification Documentation
+
+ API Documentation
+Like Endpoints
+Like a Post
+POST /api/posts/posts/{id}/like/
+Headers: Authorization: Token your_token
+Response:
+
+json
+{
+    "id": 1,
+    "user": "username",
+    "post": 1,
+    "created_at": "2024-01-15T12:00:00Z"
+}
+Unlike a Post
+POST /api/posts/posts/{id}/unlike/
+Headers: Authorization: Token your_token
+Response:
+
+json
+{
+    "message": "Post unliked successfully."
+}
+Get Post Likes
+GET /api/posts/posts/{id}/likes/
+Response:
+
+json
+[
+    {
+        "id": 1,
+        "user": "username1",
+        "post": 1,
+        "created_at": "2024-01-15T12:00:00Z"
+    }
+]
+Notification Endpoints
+Get Notifications
+GET /api/notifications/notifications/
+Headers: Authorization: Token your_token
+Response:
+
+json
+[
+    {
+        "id": 1,
+        "actor": {
+            "id": 2,
+            "username": "otheruser",
+            "first_name": "Other",
+            "last_name": "User"
+        },
+        "verb": "like",
+        "read": false,
+        "timestamp": "2024-01-15T12:00:00Z",
+        "target_object": {
+            "type": "post",
+            "data": {
+                "id": 1,
+                "title": "Post Title",
+                "content": "Post content..."
+            }
+        }
+    }
+]
+Mark Notification as Read
+POST /api/notifications/notifications/{id}/mark_as_read/
+Headers: Authorization: Token your_token
+Response:
+
+json
+{
+    "message": "Notification marked as read."
+}
+Mark All as Read
+POST /api/notifications/notifications/mark_all_as_read/
+Headers: Authorization: Token your_token
+Response:
+
+json
+{
+    "message": "All notifications marked as read."
+}
+Get Unread Count
+GET /api/notifications/notifications/unread_count/
+Headers: Authorization: Token your_token
+Response:
+
+json
+{
+    "unread_count": 3
+}
+Testin
